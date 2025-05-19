@@ -1,7 +1,6 @@
 package entidades;
 import registro.EntidadeArquivo;
 
-import java.time.LocalDate;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;

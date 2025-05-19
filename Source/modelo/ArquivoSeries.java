@@ -1,8 +1,8 @@
 package modelo;
 
 import registro.*;
-
 import entidades.Serie;
+import lista_invertida.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,6 +11,9 @@ public class ArquivoSeries extends Arquivo<Serie> {
 
   Arquivo<Serie> arqSeries;
   ArvoreBMais<ParNomeId> indiceNome;
+
+  ListaInvertida listaSeries;
+  ListaInvertidaAux listaAux;
 
   public ArquivoSeries() throws Exception {
 
@@ -25,6 +28,8 @@ public class ArquivoSeries extends Arquivo<Serie> {
     indiceNome = new ArvoreBMais<>(
     ParNomeId.class.getConstructor(), 5, "./dados/serie" + "/indiceNome.db");
 
+	listaSeries = new ListaInvertida(4, "./dados/dicionario.listaSeries.db", "./dados/blocos.listaSeries.db");
+	listaAux = new ListaInvertidaAux();
   }
 
   @Override
@@ -33,6 +38,16 @@ public class ArquivoSeries extends Arquivo<Serie> {
     int id = super.create(s);
 
     indiceNome.create(new ParNomeId(s.getNome(), id));
+
+	String[] terms = listaAux.getTerms(s.getNome());
+
+	int n = terms.length;
+	float[] fq = listaAux.getFrequency(terms);
+
+	for (int i = 0; i < n; i++)
+	{
+		listaSeries.create(terms[i], new ElementoLista(id, fq[i]));
+	}
 
     return id;
 
@@ -74,6 +89,14 @@ public class ArquivoSeries extends Arquivo<Serie> {
 
       if(super.delete(id))
 	  {
+		String[] termos = listaAux.getTerms(s.getNome());
+
+		int n = termos.length;
+
+		for (int i = 0; i < n; i++)
+		{
+			listaSeries.delete(termos[i], id);
+		}
         return indiceNome.delete(new ParNomeId(s.getNome(), id));
       }
 
@@ -94,6 +117,21 @@ public class ArquivoSeries extends Arquivo<Serie> {
                   indiceNome.delete(new ParNomeId(serie.getNome(), serie.getID()));
                   indiceNome.create(new ParNomeId(novaSerie.getNome(), novaSerie.getID()));
               }
+
+			  String[] termos = listaAux.getTerms(serie.getNome());
+			  float[] fq = listaAux.getFrequency(termos);
+
+			  int n = termos.length;
+
+			  for (int i = 0; i < n; i++)
+			  {
+					boolean status = listaSeries.update(termos[i], new ElementoLista(serie.getID(), fq[i]));
+					if (!status)
+					{
+						System.err.println ("Erro: O termo nao pode ser alterado");
+					}
+			  }
+
               return true;
           }
       }

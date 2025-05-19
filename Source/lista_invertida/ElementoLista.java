@@ -1,4 +1,4 @@
-package registro;
+package lista_invertida;
 
 public class ElementoLista implements Comparable<ElementoLista>, Cloneable {
     

@@ -1,8 +1,8 @@
 package modelo;
 
 import registro.*;
-
 import entidades.Episodio;
+import lista_invertida.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +12,9 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
   Arquivo<Episodio> arqEpisodios;
   ArvoreBMais<ParNomeId> indiceNome;
   ArvoreBMais<ParIdId> indiceRelacaoSerieEp;
+  
+  ListaInvertida listaEpisodios;
+  ListaInvertidaAux listaAux;
 
   public ArquivoEpisodios() throws Exception {
 
@@ -28,6 +31,8 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
     indiceRelacaoSerieEp = new ArvoreBMais<>(
     ParIdId.class.getConstructor(), 5, "./dados/episodio" + "/indiceRelacaoSerieEp.db");
 
+	listaEpisodios = new ListaInvertida(4, "./dados/dicionario.listaEpisodios.db", "./dados/blocos.listaEpisodios.db");
+	listaAux = new ListaInvertidaAux();
   }
 
   @Override
@@ -39,6 +44,16 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
 
     //adicionar indice de relacionamento
     indiceRelacaoSerieEp.create(new ParIdId(ep.getIDSerie(), id));
+
+	String[] terms = listaAux.getTerms(ep.getNome());
+
+	int n = terms.length;
+	float[] fq = listaAux.getFrequency(terms);
+
+	for (int i = 0; i < n; i++)
+	{
+		listaEpisodios.create(terms[i], new ElementoLista(id, fq[i]));
+	}
 
     return id;
 
@@ -80,6 +95,14 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
 
       if(super.delete(id)){
 
+		String[] termos = listaAux.getTerms(ep.getNome());
+
+		int n = termos.length;
+
+		for (int i = 0; i < n; i++)
+		{
+			listaEpisodios.delete(termos[i], id);
+		}
         return indiceNome.delete(new ParNomeId(ep.getNome(), id)) && indiceRelacaoSerieEp.delete(new ParIdId(ep.getIDSerie(), id));
       
       }
@@ -109,6 +132,20 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
           //indiceRelacaoSerieEp.create(new ParIdId(novoEpisodio.getIDSerie(), novoEpisodio.getID()));
 
         }
+
+		String[] termos = listaAux.getTerms(ep.getNome());
+		float[] fq = listaAux.getFrequency(termos);
+
+		int n = termos.length;
+
+		for (int i = 0; i < n; i++)
+		{
+			boolean status = listaEpisodios.update(termos[i], new ElementoLista(ep.getID(), fq[i]));
+			if (!status)
+			{
+				System.err.println ("Erro: O termo nao pode ser alterado");
+			}
+		}
         return true;
       }
 

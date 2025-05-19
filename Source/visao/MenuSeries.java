@@ -7,10 +7,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
-import lista_invertida.*;
 import modelo.ArquivoAtores;
 import modelo.ArquivoEpisodios;
 import modelo.ArquivoSeries;
+
+import lista_invertida.*;
 
 public class MenuSeries 
 {    
@@ -25,7 +26,6 @@ public class MenuSeries
     public MenuSeries() throws Exception 
 	{
         arqSeries = new ArquivoSeries();
-
 		listaSeries = new ListaInvertida(4, "./dados/dicionario.listaSeries.db", "./dados/blocos.listaSeries.db");
         //para checar se tem episodios na serie antes de apaga-la
         arqEpisodios = new ArquivoEpisodios();
@@ -304,7 +304,6 @@ public class MenuSeries
                 System.err.println("O nome da serie deve ter no minimo 3 caracteres.");
             }
         } while (nome.length() < 3);
-
 
         try {
 

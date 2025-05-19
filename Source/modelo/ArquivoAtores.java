@@ -1,7 +1,8 @@
 package modelo;
 
-import entidades.Ator;
 import registro.*;
+import entidades.Ator;
+import lista_invertida.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ public class ArquivoAtores extends Arquivo<Ator> {
 
   //índice de relacionamento ator-série
   ArvoreBMais<ParIdId> indiceRelacaoSerieAtor;
+
+  ListaInvertida listaAtores;
+  ListaInvertida listaAux;
 
   public ArquivoAtores() throws Exception {
 
@@ -31,6 +35,8 @@ public class ArquivoAtores extends Arquivo<Ator> {
     indiceRelacaoSerieAtor = new ArvoreBMais<>(
     ParIdId.class.getConstructor(), 5, "./dados/ator" + "/indiceRelacaoSerieAtor.db");
 
+	listaAtores = new ListaInvertida(4, "./dados/dicionario.listaAtores.db", "./dados/blocos.listaAtores.db");
+	listaAux = new ListaInvertidaAux();
   }
 
   @Override
@@ -42,6 +48,16 @@ public class ArquivoAtores extends Arquivo<Ator> {
 
     //adicionar indice de relacionamento
     indiceRelacaoSerieAtor.create(new ParIdId(at.getIDSerie(), id));
+
+	String[] terms = listaAux.getTerms(at.getNome());
+
+	int n = terms.length;
+	float[] fq = listaAux.getFrequency(terms);
+
+	for (int i = 0; i < n; i++)
+	{
+		listaAtores.create(terms[i], new ElementoLista(id, fq[i]));
+	}
 
     return id;
 
@@ -83,6 +99,14 @@ public class ArquivoAtores extends Arquivo<Ator> {
 
       if(super.delete(id)){
 
+		String[] termos = listaAux.getTerms(at.getNome());
+
+		int n = termos.length;
+
+		for (int i = 0; i < n; i++)
+		{
+			listaAtores.delete(termos[i], id);
+		}
         return indiceNome.delete(new ParNomeId(at.getNomeAtor(), id)) && indiceRelacaoSerieAtor.delete(new ParIdId(at.getIDSerie(), id));
       
       }
@@ -108,6 +132,21 @@ public class ArquivoAtores extends Arquivo<Ator> {
           indiceNome.create(new ParNomeId(novoAtor.getNomeAtor(), novoAtor.getID()));
 
         }
+
+		String[] termos = listaAux.getTerms(serie.getNome());
+		float[] fq = listaAux.getFrequency(termos);
+
+		int n = termos.length;
+
+		for (int i = 0; i < n; i++)
+		{
+			boolean status = listaSeries.update(termos[i], new ElementoLista(serie.getID(), fq[i]));
+			if (!status)
+			{
+				System.err.println ("Erro: O termo nao pode ser alterado");
+			}
+		}
+
         return true;
       }
 

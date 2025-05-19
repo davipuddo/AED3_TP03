@@ -1,11 +1,20 @@
-package registro;
+package lista_invertida;
+
+import java.text.Normalizer;
+import java.util.regex.Pattern;
 
 public class ListaInvertidaAux 
 {
 	// Definir stopwords
-	static String[] stopwords = new String[222];
+	private static String[] stopwords;
 
-	public static void init ()
+	public ListaInvertidaAux ()
+	{
+		stopwords = new String[222];
+		init();
+	}
+
+	private static void init()
 	{
 		stopwords[0] = "de";
 		stopwords[1] = "a";
@@ -229,32 +238,98 @@ public class ListaInvertidaAux
 		stopwords[219] = "teriam";
 	}
 
-	public static String[] getTermos (String str)
+	// Remover acentos
+    public static String normalize (String str) 
+	{
+		String res = null;
+        if (str != null) 
+		{
+			String nm = Normalizer.normalize(str, Normalizer.Form.NFD);
+			Pattern pt = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+			res = pt.matcher(nm).replaceAll("");
+        }
+		return (res);
+    }
+	
+	// Receber frequencia dos termos
+	public static float[] getFrequency (String[] terms)
+	{
+		float[] res = null;
+
+		if (terms != null)
+		{
+			int n = terms.length;
+
+			int[] counter = new int[n];	   // Contador de palavras
+			String[] used = new String[n]; // Palavras usadas
+
+			int ui = 0;
+
+			for (int i = 0; i < n; i++) // Contar termos
+			{
+				String aux = terms[i];
+				
+				int found = -1;
+				for (int j = 0; j < n; j++) // Procurar na lista de palavras usadas
+				{
+					if (aux.equals(used[j]))
+					{
+						found = j;
+					}
+				}
+
+				if (found > -1)	// Se a palavra for encontrada
+				{
+					counter[found]++;
+				}
+				else			// Se nao
+				{
+					used[ui] = aux;
+					counter[ui++]++;
+				}
+			}
+
+			res = new float[ui];
+
+			for (int i = 0; i < ui; i++)
+			{
+				res[i] = ((float)counter[i]/(float)n); // Calcular frequencia
+			}
+		}
+		return (res);
+	}
+
+	// Separar termos e remover stopwords
+	public static String[] getTerms (String str)
 	{
 		String[] res = null;
 		String[] palavras = str.split(" ");
 
 		int n = palavras.length;
-
 		int c = 0;
 
 		for (int i = 0; i < n; i++)
 		{
 			palavras[i] = palavras[i].toLowerCase();
-			for (int j = 0; j < 220; j++)
+
+			int stopCount = 0;
+			for (int j = 0; j < 220; j++) // Remover stopwords
 			{
 				if (palavras[i].equals(stopwords[j]))
 				{
 					palavras[i] = "";
 					j = 220;
+
+					stopCount++;
 				}
-				else
-				{
-					c++;
-				}
+			}
+			if (stopCount < 221) // Contador de termos validos
+			{
+				c++;
 			}
 		}
 
+		// Formatar resultado
 		if (c > 0)
 		{
 			res = new String[c];
@@ -265,18 +340,10 @@ public class ListaInvertidaAux
 			{
 				if (!palavras[i].equals(""))
 				{
-					res[j++] = palavras[i];
+					res[j++] = normalize(palavras[i]); // Remover acentos
 				}
 			}
 		}
-
 		return (res);
-	}
-
-	public static void main (String[] args)
-	{
-		init();
-		String[] a = getTermos("Eles Serão cachorro");
-		System.out.println (a[0]);
 	}
 }
