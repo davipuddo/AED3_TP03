@@ -1,10 +1,10 @@
 package visao;
-import modelo.*;
 import entidades.*;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import lista_invertida.*;
+import modelo.*;
 
 public class MenuEpisodios {
     

@@ -1,16 +1,16 @@
 package visao;
 
+import entidades.Ator;
+import entidades.Episodio;
+import entidades.Serie;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
-
-import entidades.Episodio;
-import entidades.Serie;
-import entidades.Ator;
+import lista_invertida.*;
+import modelo.ArquivoAtores;
 import modelo.ArquivoEpisodios;
 import modelo.ArquivoSeries;
-import modelo.ArquivoAtores;
 
 public class MenuSeries 
 {    

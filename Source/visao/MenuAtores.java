@@ -1,10 +1,10 @@
 package visao;
-import modelo.*;
 import entidades.*;
-
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import lista_invertida.*;
+import modelo.*;
 
 public class MenuAtores {
     

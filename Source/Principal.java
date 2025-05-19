@@ -1,10 +1,7 @@
-import visao.*;
-
-import java.util.Scanner;
-
 import entidades.*;
-
+import java.util.Scanner;
 import registro.Arquivo;
+import visao.*;
 
 public class Principal 
 {
@@ -26,7 +23,7 @@ public class Principal
 
             int opcao;
             do 
-			{'
+			{
 
             System.out.println("PUCFlix 1.0\n" +
                                "-----------\n" +
