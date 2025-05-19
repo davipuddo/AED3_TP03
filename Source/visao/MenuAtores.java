@@ -11,10 +11,12 @@ public class MenuAtores {
     ArquivoAtores arqAtores;
     ArquivoSeries arqSeries;
     private static Scanner console = new Scanner(System.in);
+	ListaInvertida listaAtores;
 
     public MenuAtores() throws Exception {
         arqAtores = new ArquivoAtores();
         arqSeries = new ArquivoSeries();
+		listaAtores = new ListaInvertida(4, "./dados/dicionario.listaAtores.db", "./dados/blocos.listaAtores.db");
     }
 
     public void menu() {

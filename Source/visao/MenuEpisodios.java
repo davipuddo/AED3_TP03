@@ -11,10 +11,12 @@ public class MenuEpisodios {
     ArquivoEpisodios arqEpisodios;
     ArquivoSeries arqSeries;
     private static Scanner console = new Scanner(System.in);
+	ListaInvertida listaEpisodios;
 
     public MenuEpisodios() throws Exception {
         arqEpisodios = new ArquivoEpisodios();
         arqSeries = new ArquivoSeries();
+		listaEpisodios = new ListaInvertida(4, "./dados/dicionario.listaEpisodios.db", "./dados/blocos.listaEpisodios.db");
     }
 
     public void menu() {

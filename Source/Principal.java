@@ -15,16 +15,18 @@ public class Principal
         Arquivo<Episodio> arqEpisodios = null; 
 		Arquivo<Ator> arqAtores = null;
 
+
         try 
 		{   
+            sc = new Scanner(System.in);
+
             arqSeries = new Arquivo<>("series", Serie.class.getConstructor());
             arqEpisodios = new Arquivo<>("episodios", Episodio.class.getConstructor());
             arqAtores = new Arquivo<>("atores", Ator.class.getConstructor());
 
-            sc = new Scanner(System.in);
             int opcao;
             do 
-			{
+			{'
 
             System.out.println("PUCFlix 1.0\n" +
                                "-----------\n" +

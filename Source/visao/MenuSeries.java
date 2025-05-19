@@ -20,10 +20,13 @@ public class MenuSeries
 
     private static Scanner console = new Scanner (System.in);
 
+	ListaInvertida listaSeries;
+
     public MenuSeries() throws Exception 
 	{
         arqSeries = new ArquivoSeries();
 
+		listaSeries = new ListaInvertida(4, "./dados/dicionario.listaSeries.db", "./dados/blocos.listaSeries.db");
         //para checar se tem episodios na serie antes de apaga-la
         arqEpisodios = new ArquivoEpisodios();
 
