@@ -1,3 +1,5 @@
+package registro;
+
 public class ListaInvertidaAux 
 {
 	// Definir stopwords
