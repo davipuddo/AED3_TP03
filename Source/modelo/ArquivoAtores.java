@@ -18,7 +18,7 @@ public class ArquivoAtores extends Arquivo<Ator> {
   ArvoreBMais<ParIdId> indiceRelacaoSerieAtor;
 
   ListaInvertida listaAtores;
-  ListaInvertida listaAux;
+  ListaInvertidaAux listaAux;
 
   public ArquivoAtores() throws Exception {
 
@@ -49,7 +49,7 @@ public class ArquivoAtores extends Arquivo<Ator> {
     //adicionar indice de relacionamento
     indiceRelacaoSerieAtor.create(new ParIdId(at.getIDSerie(), id));
 
-	String[] terms = listaAux.getTerms(at.getNome());
+	String[] terms = listaAux.getTerms(at.getNomeAtor());
 
 	int n = terms.length;
 	float[] fq = listaAux.getFrequency(terms);
@@ -99,7 +99,7 @@ public class ArquivoAtores extends Arquivo<Ator> {
 
       if(super.delete(id)){
 
-		String[] termos = listaAux.getTerms(at.getNome());
+		String[] termos = listaAux.getTerms(at.getNomeAtor());
 
 		int n = termos.length;
 
@@ -133,14 +133,14 @@ public class ArquivoAtores extends Arquivo<Ator> {
 
         }
 
-		String[] termos = listaAux.getTerms(serie.getNome());
+		String[] termos = listaAux.getTerms(at.getNomeAtor());
 		float[] fq = listaAux.getFrequency(termos);
 
 		int n = termos.length;
 
 		for (int i = 0; i < n; i++)
 		{
-			boolean status = listaSeries.update(termos[i], new ElementoLista(serie.getID(), fq[i]));
+			boolean status = listaAtores.update(termos[i], new ElementoLista(at.getID(), fq[i]));
 			if (!status)
 			{
 				System.err.println ("Erro: O termo nao pode ser alterado");

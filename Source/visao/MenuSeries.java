@@ -22,15 +22,19 @@ public class MenuSeries
     private static Scanner console = new Scanner (System.in);
 
 	ListaInvertida listaSeries;
+	ListaInvertidaAux listaAux;
 
     public MenuSeries() throws Exception 
 	{
         arqSeries = new ArquivoSeries();
-		listaSeries = new ListaInvertida(4, "./dados/dicionario.listaSeries.db", "./dados/blocos.listaSeries.db");
+
         //para checar se tem episodios na serie antes de apaga-la
         arqEpisodios = new ArquivoEpisodios();
 
         arqAtores = new ArquivoAtores();
+
+		listaSeries = new ListaInvertida(4, "./dados/dicionario.listaSeries.db", "./dados/blocos.listaSeries.db");
+		listaAux = new ListaInvertidaAux();
     }
 
     public void menu() 
@@ -111,6 +115,27 @@ public class MenuSeries
 
         try 
 		{
+			String[] termos = listaAux.getTerms(nome);	// Recebe termos
+			
+			int n = termos.length;
+
+			ElementoLista[][] EL = new ElementoLista[n][]; // Cria matriz de tuplas
+
+			for (int i = 0; i < n; i++)
+			{
+				EL[i] = listaSeries.read(termos[i]);	// Recebe vetores de tuplas
+			}
+
+			int IDCount = arqSeries.readAll().size(); // Quantidade total de series
+
+			int[] IDs = listaAux.getQueryOrder(EL, IDCount);	// Recebe IDs ordenados da consulta
+
+			System.out.println ("IDs ordenados: ");
+			for (int i = 0; i < IDs.length; i++)
+			{
+				System.out.println ("["+IDs[i]+"]");
+			}
+
             Serie[] series = arqSeries.readNome(nome);  // Chama o metodo de leitura da classe Arquivo
             
             if (series != null && series.length > 0) {

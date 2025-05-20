@@ -2,6 +2,10 @@ package lista_invertida;
 
 import java.text.Normalizer;
 import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.Collections;
+
+import modelo.*;
 
 public class ListaInvertidaAux 
 {
@@ -239,7 +243,7 @@ public class ListaInvertidaAux
 	}
 
 	// Remover acentos
-    public static String normalize (String str) 
+    private static String normalize (String str) 
 	{
 		String res = null;
         if (str != null) 
@@ -342,6 +346,105 @@ public class ListaInvertidaAux
 				{
 					res[j++] = normalize(palavras[i]); // Remover acentos
 				}
+			}
+		}
+		return (res);
+	}
+
+	private static int getMax (ElementoLista[][] EL)
+	{
+		int max = 0;
+		int n = EL.length;
+		for (int i = 0; i < n; i++)
+		{
+			int N = EL[i].length;
+			for (int j = 0; j < N; j++)
+			{
+				int id = EL[i][j].getId();
+
+				if (id > max)
+				{
+					max = id;
+				}
+			}
+		}
+		return (max);
+	}
+
+	public static int[] getQueryOrder (ElementoLista[][] EL, int IDCount) throws Exception
+	{
+		int[] res = null;
+		if (EL != null)
+		{
+			int n = EL.length;
+
+			ElementoLista[][] OEL = EL.clone(); // EL Original
+
+			int aTPN = getMax(EL)+1; // Maior ID + 1
+
+			float[] aTP = new float[aTPN]; // Tuplas alteradas
+			int[] idTP = new int [aTPN];
+
+			for (int i = 0; i < aTPN; i++)
+			{
+				aTP[i] = -1;
+			}
+
+			int c = 0; // Contador de IDs com match
+
+			for (int i = 0; i < n; i++)	// Termos
+			{
+				int TupN = EL[i].length;	// Quantidade de tuplas do termo
+
+				double buf = ((double)IDCount/(double)TupN);
+
+				float IDF = (float)(Math.log10(buf)); // Calcular IDF
+
+				IDF += 1;
+
+				for (int j = 0; j < TupN; j++) // Tuplas
+				{
+					ElementoLista tuple = EL[i][j];
+
+					float fq = OEL[i][j].getFrequencia(); // Frequencia base
+					int id = tuple.getId();
+
+					if (aTP[id] != -1)	// Outra tupla com esse id foi alterada
+					{
+						float addFq = (fq*IDF);
+
+						aTP[id] += addFq;
+					}
+					else
+					{
+						aTP[id] = (fq*IDF);
+						idTP[c++] = id;
+					}
+				}
+			}
+
+			System.out.println ("ids validos: "+c);
+
+			int ri = 0; // index do resultado;
+
+			for (int i = 0; i < c; i++)
+			{
+				for (int j = 0; j < c-1; j++)
+				{
+					if (aTP[idTP[c]] > aTP[idTP[c+1]])
+					{
+						int tmp = idTP[c];
+						idTP[c] = idTP[c+1];
+						idTP[c+1] = tmp;
+					}
+				}
+			}
+
+			res = new int[c];
+
+			for (int i = 0; i < c; i++)
+			{
+				res[i] = idTP[i];
 			}
 		}
 		return (res);
