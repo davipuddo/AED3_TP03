@@ -11,12 +11,15 @@ public class MenuAtores {
     ArquivoAtores arqAtores;
     ArquivoSeries arqSeries;
     private static Scanner console = new Scanner(System.in);
+
 	ListaInvertida listaAtores;
+	ListaInvertidaAux listaAux;
 
     public MenuAtores() throws Exception {
         arqAtores = new ArquivoAtores();
         arqSeries = new ArquivoSeries();
 		listaAtores = new ListaInvertida(4, "./dados/dicionario.listaAtores.db", "./dados/blocos.listaAtores.db");
+		listaAux = new ListaInvertidaAux();
     }
 
     public void menu() {
@@ -79,9 +82,30 @@ public class MenuAtores {
         String nome = console.nextLine(); 
     
         try {
+			String[] termos = listaAux.getTerms(nome);  // Recebe termos
+
+            int n = termos.length;
+
+            ElementoLista[][] EL = new ElementoLista[n][]; // Cria matriz de tuplas
+
+            for (int i = 0; i < n; i++)
+            {
+                EL[i] = listaAtores.read(termos[i]);    // Recebe vetores de tuplas
+            }
+
+            int IDCount = arqAtores.readAll().size(); // Quantidade total de atores
+
+            int[] IDs = listaAux.getQueryOrder(EL, IDCount);    // Recebe IDs ordenados da consulta
+
+            Ator[] atores = new Ator[IDs.length];
+
+            for (int i = 0; i < IDs.length; i++)
+            {
+                atores[i] = arqAtores.read(IDs[i]); // Encontrar atores com os IDs fornecidos
+            }
 
             //recuperar todos os atores com o nome
-            Ator[] atores = arqAtores.readNome(nome);
+            //Ator[] atores = arqAtores.readNome(nome); (busca antiga)
     
             if (atores != null && atores.length > 0) {
                 boolean encontrouAtor = false;

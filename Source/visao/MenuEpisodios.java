@@ -11,12 +11,16 @@ public class MenuEpisodios {
     ArquivoEpisodios arqEpisodios;
     ArquivoSeries arqSeries;
     private static Scanner console = new Scanner(System.in);
+
 	ListaInvertida listaEpisodios;
+	ListaInvertidaAux listaAux;
 
     public MenuEpisodios() throws Exception {
         arqEpisodios = new ArquivoEpisodios();
         arqSeries = new ArquivoSeries();
+
 		listaEpisodios = new ListaInvertida(4, "./dados/dicionario.listaEpisodios.db", "./dados/blocos.listaEpisodios.db");
+		listaAux = new ListaInvertidaAux();
     }
 
     public void menu() {
@@ -67,16 +71,38 @@ public class MenuEpisodios {
         } while (opcao != 0);
     }
 
-
     public void buscarEpisodio() {
 
         System.out.println("\nBusca de episodio");
         System.out.print("Digite o nome do episodio: "); 
         String nome = console.nextLine(); 
     
-        try {
-            // Retrieve all episodes with the given name
-            Episodio[] episodios = arqEpisodios.readNome(nome);
+        try 
+		{
+			String[] termos = listaAux.getTerms(nome); // Encontrar termos
+
+			int n = termos.length;
+
+			ElementoLista[][] EL = new ElementoLista[n][];	// Vetores de tuplas para todos os termos
+
+			for (int i = 0; i < n; i++)
+			{
+				EL[i] = listaEpisodios.read(termos[i]);	// Recebe vetores de tuplas dos termos
+			}
+
+			int IDCount = arqEpisodios.readAll().size(); 	// Ler quantidade total de Episodios
+
+			int[] IDs = listaAux.getQueryOrder(EL, IDCount); // IDs encontrados ordenados por IDF
+
+			Episodio[] episodios = new Episodio[IDs.length];
+			
+			// Encontrar entidades
+			for (int i = 0; i < IDs.length; i++)
+			{
+				episodios[i] = arqEpisodios.read(IDs[i]);
+			}
+
+            //Episodio[] episodios = arqEpisodios.readNome(nome); (busca antiga)
     
             if (episodios != null && episodios.length > 0) {
                 boolean encontrouEpisodio = false;

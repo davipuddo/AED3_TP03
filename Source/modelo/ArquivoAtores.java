@@ -49,11 +49,12 @@ public class ArquivoAtores extends Arquivo<Ator> {
     //adicionar indice de relacionamento
     indiceRelacaoSerieAtor.create(new ParIdId(at.getIDSerie(), id));
 
-	String[] terms = listaAux.getTerms(at.getNomeAtor());
+	String[] terms = listaAux.getTerms(at.getNomeAtor()); // Encontrar termos
+	float[] fq = listaAux.getFrequency(terms);	// Encontrar frequencia
 
 	int n = terms.length;
-	float[] fq = listaAux.getFrequency(terms);
 
+	// Criar novas tuplas dos termos
 	for (int i = 0; i < n; i++)
 	{
 		listaAtores.create(terms[i], new ElementoLista(id, fq[i]));
@@ -133,14 +134,24 @@ public class ArquivoAtores extends Arquivo<Ator> {
 
         }
 
-		String[] termos = listaAux.getTerms(at.getNomeAtor());
+		String[] termos = listaAux.getTerms(novoAtor.getNomeAtor());
 		float[] fq = listaAux.getFrequency(termos);
 
 		int n = termos.length;
 
 		for (int i = 0; i < n; i++)
 		{
-			boolean status = listaAtores.update(termos[i], new ElementoLista(at.getID(), fq[i]));
+			boolean status = false;
+
+			if (listaAtores.read(termos[i]).length == 0) // Se esse termo nao existe, cria-lo
+			{
+				status = listaAtores.create(termos[i], new ElementoLista(novoAtor.getID(), fq[i]));
+			}
+			else // Se sim, altera-lo
+			{
+				status = listaAtores.update(termos[i], new ElementoLista(novoAtor.getID(), fq[i]));
+			}
+
 			if (!status)
 			{
 				System.err.println ("Erro: O termo nao pode ser alterado");

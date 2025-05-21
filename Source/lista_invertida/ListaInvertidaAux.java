@@ -423,25 +423,23 @@ public class ListaInvertidaAux
 				}
 			}
 
-			System.out.println ("ids validos: "+c);
-
-			int ri = 0; // index do resultado;
-
-			for (int i = 0; i < c; i++)
+			// Ordenar ids pelo IDF
+			for (int i = 1; i < c; i++)
 			{
-				for (int j = 0; j < c-1; j++)
+				int tmp = idTP[i];
+				int j = i-1;
+
+				while (j >= 0 && aTP[idTP[j]] < aTP[tmp])
 				{
-					if (aTP[idTP[c]] > aTP[idTP[c+1]])
-					{
-						int tmp = idTP[c];
-						idTP[c] = idTP[c+1];
-						idTP[c+1] = tmp;
-					}
+					idTP[j+1] = idTP[j];
+					j--;
 				}
+				idTP[j+1] = tmp;
 			}
 
 			res = new int[c];
 
+			// Copiar dados para um vetor de tamanho correto
 			for (int i = 0; i < c; i++)
 			{
 				res[i] = idTP[i];

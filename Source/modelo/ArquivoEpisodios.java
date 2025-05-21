@@ -45,11 +45,12 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
     //adicionar indice de relacionamento
     indiceRelacaoSerieEp.create(new ParIdId(ep.getIDSerie(), id));
 
-	String[] terms = listaAux.getTerms(ep.getNome());
+	String[] terms = listaAux.getTerms(ep.getNome()); // Encontrar termos
+	float[] fq = listaAux.getFrequency(terms);	// Encontrar frequencia
 
 	int n = terms.length;
-	float[] fq = listaAux.getFrequency(terms);
 
+	// Adicionar termos
 	for (int i = 0; i < n; i++)
 	{
 		listaEpisodios.create(terms[i], new ElementoLista(id, fq[i]));
@@ -95,13 +96,13 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
 
       if(super.delete(id)){
 
-		String[] termos = listaAux.getTerms(ep.getNome());
+		String[] termos = listaAux.getTerms(ep.getNome()); // Le os termos da entidade
 
 		int n = termos.length;
 
 		for (int i = 0; i < n; i++)
 		{
-			listaEpisodios.delete(termos[i], id);
+			listaEpisodios.delete(termos[i], id);	// Apaga as tuplas dessa entidade dos termos
 		}
         return indiceNome.delete(new ParNomeId(ep.getNome(), id)) && indiceRelacaoSerieEp.delete(new ParIdId(ep.getIDSerie(), id));
       
@@ -133,14 +134,23 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
 
         }
 
-		String[] termos = listaAux.getTerms(ep.getNome());
+		String[] termos = listaAux.getTerms(novoEpisodio.getNome());
 		float[] fq = listaAux.getFrequency(termos);
 
 		int n = termos.length;
 
 		for (int i = 0; i < n; i++)
 		{
-			boolean status = listaEpisodios.update(termos[i], new ElementoLista(ep.getID(), fq[i]));
+			boolean status = false;
+			if (listaEpisodios.read(termos[i]).length == 0) // Verifica se o termo nao existe
+			{
+				status = listaEpisodios.create(termos[i], new ElementoLista(novoEpisodio.getID(), fq[i]));
+			}
+			else // Se sim, altera-lo
+			{
+				status = listaEpisodios.update(termos[i], new ElementoLista(novoEpisodio.getID(), fq[i]));
+			}
+
 			if (!status)
 			{
 				System.err.println ("Erro: O termo nao pode ser alterado");

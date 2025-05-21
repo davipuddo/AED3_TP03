@@ -130,13 +130,14 @@ public class MenuSeries
 
 			int[] IDs = listaAux.getQueryOrder(EL, IDCount);	// Recebe IDs ordenados da consulta
 
-			System.out.println ("IDs ordenados: ");
+			Serie[] series = new Serie[IDs.length];
+
 			for (int i = 0; i < IDs.length; i++)
 			{
-				System.out.println ("["+IDs[i]+"]");
+				series[i] = arqSeries.read(IDs[i]);	// Encontrar series com os IDs fornecidos
 			}
 
-            Serie[] series = arqSeries.readNome(nome);  // Chama o metodo de leitura da classe Arquivo
+            //Serie[] series = arqSeries.readNome(nome);  // Chama o metodo de leitura da classe Arquivo (Busca antiga)
             
             if (series != null && series.length > 0) {
 

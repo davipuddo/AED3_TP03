@@ -89,10 +89,11 @@ public class ArquivoSeries extends Arquivo<Serie> {
 
       if(super.delete(id))
 	  {
-		String[] termos = listaAux.getTerms(s.getNome());
+		String[] termos = listaAux.getTerms(s.getNome()); // Encontrar termos
 
 		int n = termos.length;
-
+		
+		// Apagar todas as tuplas dessa entidade dos termos
 		for (int i = 0; i < n; i++)
 		{
 			listaSeries.delete(termos[i], id);
@@ -118,14 +119,23 @@ public class ArquivoSeries extends Arquivo<Serie> {
                   indiceNome.create(new ParNomeId(novaSerie.getNome(), novaSerie.getID()));
               }
 
-			  String[] termos = listaAux.getTerms(serie.getNome());
+			  String[] termos = listaAux.getTerms(novaSerie.getNome());
 			  float[] fq = listaAux.getFrequency(termos);
 
 			  int n = termos.length;
 
 			  for (int i = 0; i < n; i++)
 			  {
-					boolean status = listaSeries.update(termos[i], new ElementoLista(serie.getID(), fq[i]));
+					boolean status = false;
+					if (listaSeries.read(termos[i]).length == 0) // Verificar se o termo nao existe
+					{
+						status = listaSeries.create(termos[i], new ElementoLista(novaSerie.getID(), fq[i]));
+					}
+					else // Se sim, altera-lo
+					{
+						status = listaSeries.update(termos[i], new ElementoLista(novaSerie.getID(), fq[i]));
+					}
+
 					if (!status)
 					{
 						System.err.println ("Erro: O termo nao pode ser alterado");
