@@ -31,8 +31,8 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
     indiceRelacaoSerieEp = new ArvoreBMais<>(
     ParIdId.class.getConstructor(), 5, "./dados/episodio" + "/indiceRelacaoSerieEp.db");
 
-	listaEpisodios = new ListaInvertida(4, "./dados/dicionario.listaEpisodios.db", "./dados/blocos.listaEpisodios.db");
-	listaAux = new ListaInvertidaAux();
+    listaEpisodios = new ListaInvertida(4, "./dados/dicionario.listaEpisodios.db", "./dados/blocos.listaEpisodios.db");
+    listaAux = new ListaInvertidaAux();
   }
 
   @Override
@@ -45,19 +45,17 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
     //adicionar indice de relacionamento
     indiceRelacaoSerieEp.create(new ParIdId(ep.getIDSerie(), id));
 
-	String[] terms = listaAux.getTerms(ep.getNome()); // Encontrar termos
-	float[] fq = listaAux.getFrequency(terms);	// Encontrar frequencia
+    String[] terms = listaAux.getTerms(ep.getNome()); // Encontrar termos
+    float[] fq = listaAux.getFrequency(terms);	// Encontrar frequencia
 
-	int n = terms.length;
+    int n = terms.length;
 
-	// Adicionar termos
-	for (int i = 0; i < n; i++)
-	{
-		listaEpisodios.create(terms[i], new ElementoLista(id, fq[i]));
-	}
-
+    // Adicionar termos
+    for (int i = 0; i < n; i++)
+    {
+      listaEpisodios.create(terms[i], new ElementoLista(id, fq[i]));
+    }
     return id;
-
   }
 
   public Episodio[] readNome (String nome) throws Exception {
@@ -124,43 +122,70 @@ public class ArquivoEpisodios extends Arquivo<Episodio> {
       if(super.update(novoEpisodio)){
 
         if(!ep.getNome().equals(novoEpisodio.getNome())){
-
+          System.out.println("Nome do episódio alterado de '" + ep.getNome() + "' para '" + novoEpisodio.getNome() + "'.");
           indiceNome.delete(new ParNomeId(ep.getNome(), ep.getID()));
           indiceNome.create(new ParNomeId(novoEpisodio.getNome(), novoEpisodio.getID()));
 
-          //esse indice não precisa alterar porque os IDs não mudam
-          //indiceRelacaoSerieEp.delete(new ParIdId(ep.getIDSerie(), ep.getID()));
-          //indiceRelacaoSerieEp.create(new ParIdId(novoEpisodio.getIDSerie(), novoEpisodio.getID()));
+          // Remove old terms from the inverted list if they are not in the new name
+          String[] termosAntigos = listaAux.getTerms(ep.getNome());
+          String[] termosNovos = listaAux.getTerms(novoEpisodio.getNome());
+      
+          if (termosAntigos == null || termosAntigos.length == 0) {
+              System.out.println("Nenhum termo antigo encontrado para o nome: " + ep.getNome());
+          } else {
+              System.out.println("Termos antigos encontrados: " + String.join(", ", termosAntigos));
+              System.out.println("Termos novos encontrados: " + String.join(", ", termosNovos));
+      
+              for (String termoAntigo : termosAntigos) {
+                  boolean encontrado = false;
+      
+                  for (String termoNovo : termosNovos) {
+                      if (termoAntigo.equals(termoNovo)) {
+                          encontrado = true;
+                          break;
+                      }
+                  }
+      
+                  if (!encontrado) {
+                      System.out.println("Tentando excluir termo antigo: " + termoAntigo);
+                      boolean status = listaEpisodios.delete(termoAntigo, ep.getID());
+                      if (status) {
+                          System.out.println("Termo '" + termoAntigo + "' excluído com sucesso.");
+                      } else {
+                          System.err.println("Erro ao excluir termo '" + termoAntigo + "'.");
+                      }
+                  }
+              }
+          }
 
         }
 
-		String[] termos = listaAux.getTerms(novoEpisodio.getNome());
-		float[] fq = listaAux.getFrequency(termos);
+        String[] termos = listaAux.getTerms(novoEpisodio.getNome());
+        float[] fq = listaAux.getFrequency(termos);
 
-		int n = termos.length;
+        int n = termos.length;
 
-		for (int i = 0; i < n; i++)
-		{
-			boolean status = false;
-			if (listaEpisodios.read(termos[i]).length == 0) // Verifica se o termo nao existe
-			{
-				status = listaEpisodios.create(termos[i], new ElementoLista(novoEpisodio.getID(), fq[i]));
-			}
-			else // Se sim, altera-lo
-			{
-				status = listaEpisodios.update(termos[i], new ElementoLista(novoEpisodio.getID(), fq[i]));
-			}
+        for (int i = 0; i < n; i++)
+        {
+          boolean status = false;
+          if (listaEpisodios.read(termos[i], novoEpisodio.getID()) == null) // Verificar se o termo nao existe
+          {
+            status = listaEpisodios.create(termos[i], new ElementoLista(novoEpisodio.getID(), fq[i]));
+          }
+          else // Se sim, altera-lo
+          {
+            status = listaEpisodios.update(termos[i], new ElementoLista(novoEpisodio.getID(), fq[i]));
+          }
 
-			if (!status)
-			{
-				System.err.println ("Erro: O termo nao pode ser alterado");
-			}
-		}
-        return true;
-      }
+          if (!status) {
+            System.err.println("Erro: O termo '" + termos[i] + "' não pode ser alterado.");
+          }
+        }
+            return true;
+          }
 
-    }
-    return false;
+        }
+        return false;
   }
 
   //todos os episodios linkados a determinada serie

@@ -78,7 +78,7 @@ public class MenuAtores {
     public void buscarAtor() {
 
         System.out.println("\nBusca de atores");
-        System.out.print("Digite o nome COMPLETO do ator: "); 
+        System.out.print("Digite o nome do ator: "); 
         String nome = console.nextLine(); 
     
         try {

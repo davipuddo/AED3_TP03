@@ -59,9 +59,7 @@ public class ArquivoAtores extends Arquivo<Ator> {
 	{
 		listaAtores.create(terms[i], new ElementoLista(id, fq[i]));
 	}
-
     return id;
-
   }
 
   public Ator[] readNome (String nome) throws Exception {
@@ -126,41 +124,67 @@ public class ArquivoAtores extends Arquivo<Ator> {
     if(at != null){
 
       if(super.update(novoAtor)){
-
         if(!at.getNomeAtor().equals(novoAtor.getNomeAtor())){
-
+          System.out.println("Nome do episódio alterado de '" + at.getNomeAtor() + "' para '" + novoAtor.getNomeAtor() + "'.");
           indiceNome.delete(new ParNomeId(at.getNomeAtor(), at.getID()));
           indiceNome.create(new ParNomeId(novoAtor.getNomeAtor(), novoAtor.getID()));
 
+          // Remove old terms from the inverted list if they are not in the new name
+          String[] termosAntigos = listaAux.getTerms(at.getNomeAtor());
+          String[] termosNovos = listaAux.getTerms(novoAtor.getNomeAtor());
+      
+          if (termosAntigos == null || termosAntigos.length == 0) {
+              System.out.println("Nenhum termo antigo encontrado para o nome: " + at.getNomeAtor());
+          } else {
+              System.out.println("Termos antigos encontrados: " + String.join(", ", termosAntigos));
+              System.out.println("Termos novos encontrados: " + String.join(", ", termosNovos));
+      
+              for (String termoAntigo : termosAntigos) {
+                  boolean encontrado = false;
+      
+                  for (String termoNovo : termosNovos) {
+                      if (termoAntigo.equals(termoNovo)) {
+                          encontrado = true;
+                          break;
+                      }
+                  }
+      
+                  if (!encontrado) {
+                      System.out.println("Tentando excluir termo antigo: " + termoAntigo);
+                      boolean status = listaAtores.delete(termoAntigo, at.getID());
+                      if (status) {
+                          System.out.println("Termo '" + termoAntigo + "' excluído com sucesso.");
+                      } else {
+                          System.err.println("Erro ao excluir termo '" + termoAntigo + "'.");
+                      }
+                  }
+            }
+          }
         }
+        String[] termos = listaAux.getTerms(novoAtor.getNomeAtor());
+        float[] fq = listaAux.getFrequency(termos);
 
-		String[] termos = listaAux.getTerms(novoAtor.getNomeAtor());
-		float[] fq = listaAux.getFrequency(termos);
+        int n = termos.length;
 
-		int n = termos.length;
+        for (int i = 0; i < n; i++)
+        {
+          boolean status = false;
+          if (listaAtores.read(termos[i], novoAtor.getID()) == null) // Verificar se o termo nao existe
+          {
+            status = listaAtores.create(termos[i], new ElementoLista(novoAtor.getID(), fq[i]));
+          }
+          else // Se sim, altera-los
+          {
+            status = listaAtores.update(termos[i], new ElementoLista(novoAtor.getID(), fq[i]));
+          }
 
-		for (int i = 0; i < n; i++)
-		{
-			boolean status = false;
-
-			if (listaAtores.read(termos[i]).length == 0) // Se esse termo nao existe, cria-lo
-			{
-				status = listaAtores.create(termos[i], new ElementoLista(novoAtor.getID(), fq[i]));
-			}
-			else // Se sim, altera-lo
-			{
-				status = listaAtores.update(termos[i], new ElementoLista(novoAtor.getID(), fq[i]));
-			}
-
-			if (!status)
-			{
-				System.err.println ("Erro: O termo nao pode ser alterado");
-			}
-		}
-
-        return true;
+          if (!status) {
+            System.err.println("Erro: O termo '" + termos[i] + "' não pode ser alterado.");
+          }
+        }
+            return true;
+          
       }
-
     }
     return false;
   }
