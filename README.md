@@ -35,21 +35,17 @@ As listas invertidas foram geradas corretamente para os três domínios de busca
 
 ## Checklist
 
-- [x] As operações de inclusão, busca, alteração e exclusão de atores estão implementadas e funcionando corretamente? **SIM**.
+- [x] O índice invertido com os termos dos títulos das séries foi criado usando a classe ListaInvertida? **SIM**.
 
-- [x] O relacionamento entre séries e atores foi implementado com árvores B+ e funciona corretamente, assegurando a consistência entre as duas entidades? **SIM**.
+- [x] O índice invertido com os termos dos títulos dos episódios foi criado usando a classe ListaInvertida? **SIM**.
 
-- [x] É possível consultar quais são os atores de uma série? **SIM**.
+- [x] O índice invertido com os termos dos nomes dos atores foi criado usando a classe ListaInvertida? **SIM**.
 
-- [x] É posssível consultar quais são as séries de um ator? **SIM**.
+- [x] É possível buscar séries por palavras usando o índice invertido? **SIM**.
 
-- [x] A remoção de séries remove os seus vínculos de atores? **SIM**.
-	- Assim como fizemos com episódio do TP01, não é permitido excluir uma série (ou alterar o nome) de uma série que possua atores linkados à ela. Para conveniência do usuário, adicionamos uma opção no MenuAtores de excluir todos os atores ligados à determinada série de uma vez. Assim, o usuário deve realizar essa ação de deletar todos os atores que trabalham na série para ser capaz de excluir a série.
-
-- [x] A inclusão de um ator em uma série em um episódio se limita aos atores existentes? 
-	- A remoção de um ator checa se há alguma série vinculado a ele? Como optamos por não fazer uma classe "Atuação", mas sim ligar diretamente a entidade "Ator" à entidade "Série" correspondente logo no seu momento de criação (inserção de novo ator), cada ator já "nasce" obrigatoriamente vinculado a uma série (e, por outro lado, nunca existirá um ator sem série pois não permitimos a exclusão de uma série com atores vinculados a ela).
-
-- [x] O trabalho está funcionando corretamente? **SIM**
+- [x] É possível buscar episódios por palavras usando o índice invertido? **SIM**.
+      
+- [x] É possível buscar atores por palavras usando o índice invertido? **SIM**.
 
 - [x] O trabalho está completo? **SIM**
 
