@@ -246,12 +246,14 @@ public class ListaInvertidaAux
     private static String normalize (String str) 
 	{
 		String res = null;
+
         if (str != null) 
 		{
 			String nm = Normalizer.normalize(str, Normalizer.Form.NFD);
 			Pattern pt = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 			res = pt.matcher(nm).replaceAll("");
         }
+
 		return (res);
     }
 	
@@ -260,7 +262,11 @@ public class ListaInvertidaAux
 	{
 		float[] res = null;
 
-		if (terms != null)
+		if (terms != null && terms.length > 0)
+		{
+			terms = Arrays.copyOf(terms, terms.length);
+			Arrays.sort(terms, Collections.reverseOrder()); // Ordenar termos
+		}
 		{
 			int n = terms.length;
 
@@ -312,25 +318,29 @@ public class ListaInvertidaAux
 		int n = palavras.length;
 		int c = 0;
 
+
 		for (int i = 0; i < n; i++)
 		{
 			palavras[i] = palavras[i].toLowerCase();
 
-			int stopCount = 0;
-			for (int j = 0; j < 220; j++) // Remover stopwords
-			{
-				if (palavras[i].equals(stopwords[j]))
-				{
-					palavras[i] = "";
-					j = 220;
+			boolean isStopword = false;
 
-					stopCount++;
-				}
-			}
-			if (stopCount < 221) // Contador de termos validos
-			{
-				c++;
-			}
+            for (int j = 0; j < 220; j++) // Remover stopwords
+            {
+                if (palavras[i].equals(stopwords[j]))
+                {
+                    palavras[i] = "";
+                    isStopword = true;
+
+                    j = 220;
+                }
+            }
+
+            if (isStopword == false) // Contador de termos validos
+            {
+                c++;
+            }
+
 		}
 
 		// Formatar resultado

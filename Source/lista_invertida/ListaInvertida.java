@@ -132,7 +132,7 @@ public class ListaInvertida {
         return false;
     }
 
-    // Remove um valor do bloco
+    //Remove um valor do bloco
     public boolean delete(int id) {
       if (empty())
         return false;
@@ -149,6 +149,40 @@ public class ListaInvertida {
       } else
         return false;
     }
+
+    /*GEPETOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+    public boolean delete(int id) {
+      if (empty()) {
+          System.err.println("Erro: Tentativa de remover ID " + id + " de um bloco vazio.");
+          return false;
+      }
+
+      int i = 0;
+
+      // Busca pelo ID no bloco
+      while (i < quantidade && id > elementos[i].getId()) {
+          i++;
+      }
+
+      // Verifica se o ID foi encontrado
+      if (i < quantidade && id == elementos[i].getId()) {
+          System.out.println("Removendo ID " + id + " do bloco.");
+
+          // Desloca os elementos subsequentes
+          while (i < quantidade - 1) {
+              elementos[i] = elementos[i + 1];
+              i++;
+          }
+
+          // Atualiza a quantidade de elementos no bloco
+          quantidade--;
+          elementos[quantidade] = null; // Limpa o último elemento para evitar referências residuais
+          return true;
+      } else {
+          System.err.println("Erro: ID " + id + " não encontrado no bloco.");
+          return false;
+      }
+    }*/
 
     public ElementoLista last() {
       return elementos[quantidade - 1];
@@ -306,6 +340,8 @@ public class ListaInvertida {
       arqBlocos.write(b.toByteArray());
       endereco = proximo;
     }
+
+    print();
     return true;
   }
 
@@ -392,13 +428,15 @@ public class ListaInvertida {
       b.fromByteArray(bd);
 
       // Testa se o valor está neste bloco e sai do laço
-      if (b.test(id)) 
+      if (b.test(id)){
+        print();
         return b.read(id);
-
+      }
       // Avança para o próximo bloco
       endereco = b.next();
     }
 
+    print();
     return null;
   }
 
@@ -438,6 +476,7 @@ public class ListaInvertida {
         b.update(e);
         arqBlocos.seek(endereco);
         arqBlocos.write(b.toByteArray());
+        print();
         return true;
       }
 
@@ -446,9 +485,64 @@ public class ListaInvertida {
     }
 
     // termo não encontrado
+    print();
     return false;
 
   }
+
+  /*GEPETOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+  public boolean update(String c, ElementoLista e) throws Exception {
+
+    String termo = "";
+    long endereco = -1;
+
+    // Localiza o termo no dicionário
+    boolean existe = false;
+    arqDicionario.seek(4);
+    while (arqDicionario.getFilePointer() != arqDicionario.length()) {
+        termo = arqDicionario.readUTF();
+        endereco = arqDicionario.readLong();
+        if (termo.compareTo(c) == 0) {
+            existe = true;
+            break;
+        }
+    }
+
+    if (!existe) {
+        System.err.println("Erro: Termo '" + c + "' não encontrado no dicionário.");
+        return false;
+    }
+
+    // Cria um laço para percorrer todos os blocos encadeados nesse endereço
+    Bloco b = new Bloco(quantidadeDadosPorBloco);
+    byte[] bd;
+    while (endereco != -1) {
+
+        // Carrega o bloco
+        arqBlocos.seek(endereco);
+        bd = new byte[b.size()];
+        arqBlocos.read(bd);
+        b.fromByteArray(bd);
+
+        // Testa se o valor está neste bloco
+        if (b.test(e.getId())) {
+            System.out.println("Atualizando ID " + e.getId() + " no termo '" + c + "'.");
+            b.update(e);
+            arqBlocos.seek(endereco);
+            arqBlocos.write(b.toByteArray());
+            print();
+            return true;
+        }
+
+        // Avança para o próximo bloco
+        endereco = b.next();
+    }
+
+    // Termo encontrado, mas ID não encontrado nos blocos
+    System.err.println("Erro: ID " + e.getId() + " não encontrado no termo '" + c + "'.");
+    print();
+    return false;
+  }*/
 
   // Remove o dado de um termo (mas não apaga o termo nem apaga blocos)
   public boolean delete(String c, int id) throws Exception {
